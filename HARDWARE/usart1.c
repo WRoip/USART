@@ -1,5 +1,16 @@
 #include "usart1.h"
 
+#pragma import(__use_no_semihosting) 
+struct __FILE 
+{ 
+	int handle; 
+}; 
+FILE __stdout;       
+void _sys_exit(int x) 
+{ 
+	x = x; 
+}
+
 void Usart1_Init(uint32_t BaudRate)
 {
 	
@@ -148,8 +159,8 @@ void USART1_IRQHandler(void)
 
 	if((USART_GetFlagStatus(USART1, USART_FLAG_RXNE)) != 0){
 		for(i = 0; i < 10; i++)str[i] = 0;
-		Send_String(str, USART1);
 		Receive_String(str, USART1);
+		Send_String(str, USART1);
 		
 	}
 }
@@ -162,8 +173,8 @@ void USART2_IRQHandler(void)
 
 	if((USART_GetFlagStatus(USART2, USART_FLAG_RXNE)) != 0){
 		for(i = 0; i < 10; i++)str[i] = 0;
-		Send_String(str, USART2);
 		Receive_String(str, USART2);
+		Send_String(str, USART2);
 		
 	}
 }
@@ -178,29 +189,29 @@ void USART3_IRQHandler(void)
 
 	if((USART_GetFlagStatus(USART3, USART_FLAG_RXNE)) != 0){
 		for(i = 0; i < 10; i++)str[i] = 0;
-		Send_String(str, USART3);
 		Receive_String(str, USART1);
+		Send_String(str, USART3);
 		
 	}
 }
 
-void Receive_String(uint8_t *str , USART_TypeDef* USARTx)
+void Send_String(uint8_t *str , USART_TypeDef* USARTx)
+{
+	while(((USARTx->SR) & (0x1 << 7)) == 0);
+	printf("%s",str);
+}
+
+void Receive_String(uint8_t *str, USART_TypeDef* USARTx)
 {
 	int i = 0;
-	while(str[i] != '\0'){
-		USART_SendData(USARTx, str[i]);
-		while(((USARTx->SR) & (0x1 << 7)) == 0);
-		i++;
+	while(((USARTx->SR) & (0x1 << 5)) != 0){
+		str[i++] = (uint8_t)USARTx->DR;
 	}
 }
 
-
-
-void Send_String(uint8_t *str, USART_TypeDef* USARTx)
+int fputc(int c, FILE *f)
 {
-	int i = 0;
-	while((USART_GetFlagStatus(USARTx, USART_FLAG_RXNE)) != 0){
-		str[i] = USART_ReceiveData(USARTx);
-		i++;
-	}
+		while(((USART1->SR) & (0x1 << 7)) == 0);
+		USART1->DR = c;
+	return c;
 }

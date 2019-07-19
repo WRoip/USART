@@ -1,5 +1,7 @@
 #include "stm32f4xx.h"
 #include "usart1.h"
+#include "stdio.h"
+
 
 int main(void)
 {
@@ -9,9 +11,11 @@ int main(void)
 	Usart2_Init(115200);
 	Usart3_Init(115200);
 	
+	printf("Init is sussful\r\n");
 	Receive_String(str, USART2);
 	
 	while(1){
+		
 	}
 	
 }
